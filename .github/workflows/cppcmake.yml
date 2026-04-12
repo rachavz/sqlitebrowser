@@ -63,9 +63,17 @@ jobs:
     with:
       NIGHTLY: ${{ github.event_name == 'schedule' || inputs.NIGHTLY == true }}
 
+  build-windows_on_arm:
+    needs: check-skippable
+    if: needs.check-skippable.outputs.skip != 'true'
+    uses: ./.github/workflows/cppcmake-windows_on_arm.yml
+    secrets: inherit
+    with:
+      NIGHTLY: ${{ github.event_name == 'schedule' || inputs.NIGHTLY == true }}
+
   release:
     if: github.event_name != 'pull_request'
-    needs: [build-macos, build-ubuntu, build-windows]
+    needs: [build-macos, build-ubuntu, build-windows, build-windows_on_arm]
     name: Release
     runs-on: ubuntu-24.04
     env:
